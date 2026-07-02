@@ -7,7 +7,7 @@ const path = require('bare-path')
 const dir = require('bare-storage')
 const { isBareKit } = require('which-runtime')
 
-// mobile doesn't have the executable path (argv[0) 
+// mobile doesn't have the executable path (argv[0])
 // and the worker entry path (argv[1]) in the workers argv‘s
 // ... to reuse the same worker in all platforms this logic is needed
 const argv = (index) => Bare.argv[index + (isBareKit ? 0 : 2)]

@@ -49,6 +49,7 @@ goodbye(async () => {
 pipe.on('data', async (data) => {
   const message = data.toString()
   if (message === 'pear:applyUpdate') {
+    await pear.ready()
     await pear.updater.applyUpdate()
     pipe.write('pear:updateApplied')
   } else console.log(message)

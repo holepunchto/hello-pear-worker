@@ -4,7 +4,7 @@
 
 `hello-pear-worker` is the worker part of the `hello-pear` boilerplate family. The application boilerplates provide the platform host and frontend integration; this boilerplate provides the local backend that communicates with them over framed IPC.
 
-Use it as the starting point for a backend shared by Electron desktop apps, React Native mobile apps and standalone Bare processes. This separation is useful when the same backend must support multiple platform frontends or run from a headless Bare host. If only one application boilerplate needs the backend, copy the implementation from [`index.js`](./index.js) into that boilerplate's `workers/main.js` instead of maintaining it separately.
+Use it as the starting point for a backend shared by Electron desktop apps, React Native mobile apps and standalone Bare processes. This separation is useful when the same backend must support multiple platform frontends. If only one application boilerplate needs the backend, copy the implementation from [`index.js`](./index.js) into that boilerplate's `workers/main.js` instead of maintaining it separately.
 
 The boilerplate embeds [`pear-runtime`][pear-runtime] on desktop and [`pear-mobile`][pear-mobile] on mobile.
 
@@ -31,7 +31,7 @@ Companion application boilerplates:
 
 ## How It Works
 
-Each application boilerplate starts the worker from its Electron main process, Bare CLI or React Native app and communicates with it over a framed IPC stream ([`framed-stream`][framed-stream] wrapping `Bare.IPC`). The worker contains the local backend, while the application boilerplate owns its platform lifecycle and frontend.
+Each companion boilerplate starts the worker through its platform host: the Electron main process, Bare CLI or React Native app. The host communicates with the worker over a framed IPC stream ([`framed-stream`][framed-stream] wrapping `Bare.IPC`). The worker contains the local backend, while the application boilerplate owns its platform lifecycle and frontend.
 
 It instantiates a `PearRuntime` with a [`Hyperswarm`][hyperswarm] and [`Corestore`][corestore], joins the swarm on the application drive's discovery key and replicates updates peer-to-peer.
 

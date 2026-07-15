@@ -92,7 +92,7 @@ Peer-to-peer data is persisted in a [`Corestore`][corestore] at `<dir>/pear-runt
 
 ### Shared Cross-Platform Backend
 
-Use this worker boilerplate alongside the application boilerplates when one local backend must be reused by multiple apps or frontend systems, or when it must also run from a headless Bare host. Keep the backend in its own module and extend `index.js` with the application's peer-to-peer and domain logic.
+Use this worker boilerplate alongside the application boilerplates when one local backend must be reused by multiple apps or frontend systems. Keep the backend in its own module and extend `index.js` with the application's peer-to-peer.
 
 Each application boilerplate then needs only a minimal worker entry (`workers/main.js`) that loads the shared backend module:
 

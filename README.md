@@ -1,12 +1,14 @@
 # hello-pear-worker
 
-> A shared cross-platform local backend worker boilerplate for Pear applications
+> A boilerplate for shared cross-platform local backends in Pear applications
 
-Use this boilerplate to run the same local backend across mobile apps, desktop UIs and standalone Bare processes. `hello-pear-worker` keeps peer-to-peer networking, storage and Over-the-Air update logic behind a framed IPC interface so each platform-specific parent only needs to start the worker and handle its messages.
+Use this repository as the starting point for a local backend that can be shared by Electron desktop apps, React Native mobile apps and standalone Bare processes. The backend stays independent of any frontend system and communicates with its host over framed IPC.
 
-The worker embeds [`pear-runtime`][pear-runtime] on desktop and [`pear-mobile`][pear-mobile] on mobile.
+This separation is useful when the same backend must support multiple platform frontends or run from a headless Bare host. If the backend belongs to only one app, copy the implementation from [`index.js`](./index.js) into that app's `workers/main.js` instead of maintaining a separate module.
 
-Used by:
+The boilerplate embeds [`pear-runtime`][pear-runtime] on desktop and [`pear-mobile`][pear-mobile] on mobile.
+
+Example hosts:
 
 - [hello-pear-electron][hello-pear-electron] — Electron desktop apps
 - [hello-pear-bare][hello-pear-bare] — standalone desktop Bare processes
@@ -21,12 +23,15 @@ Used by:
   - [Updates](#updates)
   - [Storage](#storage)
 - [Usage](#usage)
+  - [Shared Cross-Platform Backend](#shared-cross-platform-backend)
+  - [Embedded Application Worker](#embedded-application-worker)
+  - [Starting the Worker](#starting-the-worker)
 - [Scripts](#scripts)
 - [License](#license)
 
 ## How It Works
 
-The platform-specific parent starts the same worker implementation from an Electron main process, Bare CLI or React Native view layer and communicates with it over a framed IPC stream ([`framed-stream`][framed-stream] wrapping `Bare.IPC`).
+The platform-specific host starts the worker from an Electron main process, Bare CLI or React Native app and communicates with it over a framed IPC stream ([`framed-stream`][framed-stream] wrapping `Bare.IPC`). The worker contains the local backend, while the host owns its platform lifecycle and frontend.
 
 It instantiates a `PearRuntime` with a [`Hyperswarm`][hyperswarm] and [`Corestore`][corestore], joins the swarm on the application drive's discovery key and replicates updates peer-to-peer.
 
@@ -85,13 +90,25 @@ Peer-to-peer data is persisted in a [`Corestore`][corestore] at `<dir>/pear-runt
 
 ## Usage
 
-Add the `hello-pear-worker` boilerplate to every platform shell that should use the shared local backend. Each shell needs only a minimal worker entry (`workers/main.js`):
+### Shared Cross-Platform Backend
+
+Start from this boilerplate when one local backend must be reused by multiple apps or frontend systems, or when it must also run from a headless Bare host. Keep the backend in its own module and extend `index.js` with the application's peer-to-peer and domain logic.
+
+Each host then needs only a minimal worker entry (`workers/main.js`) that loads the shared backend module:
 
 ```js
-require('hello-pear-worker')
+require('my-local-backend')
 ```
 
-The parent starts the worker entry with `PearRuntime.run(...)`, passing the [arguments](#arguments), and frames the returned IPC stream:
+The module can be linked locally or published for the applications that consume it. This keeps one backend implementation consistent across Electron desktop apps, React Native mobile apps and headless or standalone Bare applications.
+
+### Embedded Application Worker
+
+If the backend is specific to one application and will not be shared across different platform frontends or used from a headless Bare host, copy [`index.js`](./index.js) into the application's `workers/main.js` and develop it there. The backend then ships as part of that app and does not need a separate module.
+
+### Starting the Worker
+
+With either approach, the host starts `workers/main.js` with `PearRuntime.run(...)`, passes the [arguments](#arguments) and frames the returned IPC stream:
 
 ```js
 const FramedStream = require('framed-stream')
@@ -112,9 +129,9 @@ pipe.on('data', (data) => {
 })
 ```
 
-On mobile the same worker entry is packaged into a worklet bundle with [`bare-pack`][bare-pack] and started via `PearRuntime.run('/worker.bundle', bundle, args)`.
+On mobile the worker entry is packaged into a worklet bundle with [`bare-pack`][bare-pack] and started via `PearRuntime.run('/worker.bundle', bundle, args)`.
 
-This keeps the local backend consistent across mobile, desktop UI and desktop Bare applications while each parent handles only its platform-specific lifecycle and interface. See each boilerplate's README for the host wiring and full [peer-to-peer deployment flow][hello-pear-electron-deployments].
+See each application boilerplate's README for the host wiring and full [peer-to-peer deployment flow][hello-pear-electron-deployments].
 
 ## Scripts
 

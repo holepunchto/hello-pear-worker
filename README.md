@@ -1,13 +1,17 @@
 # hello-pear-worker
 
-> The shared Pear worker used by all `hello-pear` boilerplates
+> The local backend worker for the `hello-pear` application boilerplates
 
-Cross-platform [Bare][bare] worker that embeds [`pear-runtime`][pear-runtime] (desktop) / [`pear-mobile`][pear-mobile] (mobile) to provide peer-to-peer Over-the-Air updates as a local backend for the boilerplate view layers.
+`hello-pear-worker` is the worker part of the `hello-pear` boilerplate family. The application boilerplates provide the platform host and frontend integration; this boilerplate provides the local backend that communicates with them over framed IPC.
 
-Used by:
+Use it as the starting point for a backend shared by Electron desktop apps, React Native mobile apps and standalone Bare processes. This separation is useful when the same backend must support multiple platform frontends. If only one application boilerplate needs the backend, copy the implementation from [`index.js`](./index.js) into that boilerplate's `workers/main.js` instead of maintaining it separately.
+
+The boilerplate embeds [`pear-runtime`][pear-runtime] on desktop and [`pear-mobile`][pear-mobile] on mobile.
+
+Companion application boilerplates:
 
 - [hello-pear-electron][hello-pear-electron] — Electron desktop apps
-- [hello-pear-bare][hello-pear-bare] — standalone Bare CLI processes
+- [hello-pear-bare][hello-pear-bare] — standalone desktop Bare processes
 - [hello-pear-react-native][hello-pear-react-native] — React Native mobile apps
 
 ## Table of Contents
@@ -19,12 +23,15 @@ Used by:
   - [Updates](#updates)
   - [Storage](#storage)
 - [Usage](#usage)
+  - [Shared Cross-Platform Backend](#shared-cross-platform-backend)
+  - [Embedded Application Worker](#embedded-application-worker)
+  - [Starting the Worker](#starting-the-worker)
 - [Scripts](#scripts)
 - [License](#license)
 
 ## How It Works
 
-The worker is started by the parent application (Electron main process, Bare CLI or React Native view layer) and communicates with it over a framed IPC stream ([`framed-stream`][framed-stream] wrapping `Bare.IPC`).
+Each companion boilerplate starts the worker through its platform host: the Electron main process, Bare CLI or React Native app. The host communicates with the worker over a framed IPC stream ([`framed-stream`][framed-stream] wrapping `Bare.IPC`). The worker contains the local backend, while the application boilerplate owns its platform lifecycle and frontend.
 
 It instantiates a `PearRuntime` with a [`Hyperswarm`][hyperswarm] and [`Corestore`][corestore], joins the swarm on the application drive's discovery key and replicates updates peer-to-peer.
 
@@ -83,13 +90,25 @@ Peer-to-peer data is persisted in a [`Corestore`][corestore] at `<dir>/pear-runt
 
 ## Usage
 
-Add `hello-pear-worker` as a dependency in the boilerplate, then the worker entry (`workers/main.js`) is just:
+### Shared Cross-Platform Backend
+
+Use this worker boilerplate alongside the application boilerplates when one local backend must be reused by multiple apps or frontend systems. Keep the backend in its own module and extend `index.js` with the application's peer-to-peer.
+
+Each application boilerplate then needs only a minimal worker entry (`workers/main.js`) that loads the shared backend module:
 
 ```js
-require('hello-pear-worker')
+require('my-local-backend')
 ```
 
-The parent starts the worker entry with `PearRuntime.run(...)`, passing the [arguments](#arguments), and frames the returned IPC stream:
+The module can be linked locally or published for the application boilerplates that consume it. This keeps one backend implementation consistent across Electron desktop apps, React Native mobile apps and headless or standalone Bare applications.
+
+### Embedded Application Worker
+
+If the backend is specific to one application boilerplate and will not be shared across different platform frontends or used from a headless Bare host, copy [`index.js`](./index.js) into that boilerplate's `workers/main.js` and develop it there. The backend then ships as part of the application boilerplate and does not need a separate module.
+
+### Starting the Worker
+
+With either approach, the application boilerplate starts `workers/main.js` with `PearRuntime.run(...)`, passes the [arguments](#arguments) and frames the returned IPC stream:
 
 ```js
 const FramedStream = require('framed-stream')
@@ -112,7 +131,7 @@ pipe.on('data', (data) => {
 
 On mobile the worker entry is packaged into a worklet bundle with [`bare-pack`][bare-pack] and started via `PearRuntime.run('/worker.bundle', bundle, args)`.
 
-See each boilerplate's README for the platform-specific wiring and full [peer-to-peer deployment flow][hello-pear-electron-deployments].
+See each companion application boilerplate's README for its host wiring and full [peer-to-peer deployment flow][hello-pear-electron-deployments].
 
 ## Scripts
 

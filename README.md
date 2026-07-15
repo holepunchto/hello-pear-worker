@@ -1,8 +1,8 @@
 # hello-pear-worker
 
-> A shared cross-platform local backend for Pear applications
+> A shared cross-platform local backend worker boilerplate for Pear applications
 
-Use the same local backend across mobile apps, desktop UIs and standalone Bare processes. `hello-pear-worker` keeps peer-to-peer networking, storage and Over-the-Air update logic behind a framed IPC interface so each platform-specific parent only needs to start the worker and handle its messages.
+Use this boilerplate to run the same local backend across mobile apps, desktop UIs and standalone Bare processes. `hello-pear-worker` keeps peer-to-peer networking, storage and Over-the-Air update logic behind a framed IPC interface so each platform-specific parent only needs to start the worker and handle its messages.
 
 The worker embeds [`pear-runtime`][pear-runtime] on desktop and [`pear-mobile`][pear-mobile] on mobile.
 
@@ -85,7 +85,7 @@ Peer-to-peer data is persisted in a [`Corestore`][corestore] at `<dir>/pear-runt
 
 ## Usage
 
-Add `hello-pear-worker` to every platform shell that should use the shared local backend. Each shell needs only a minimal worker entry (`workers/main.js`):
+Add the `hello-pear-worker` boilerplate to every platform shell that should use the shared local backend. Each shell needs only a minimal worker entry (`workers/main.js`):
 
 ```js
 require('hello-pear-worker')

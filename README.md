@@ -8,9 +8,9 @@ The worker embeds [`pear-runtime`][pear-runtime] on desktop and [`pear-mobile`][
 
 Used by:
 
-- [hello-pear-electron][hello-pear-electron] — Electron desktop UIs
+- [hello-pear-electron][hello-pear-electron] — Electron desktop apps
 - [hello-pear-bare][hello-pear-bare] — standalone desktop Bare processes
-- [hello-pear-react-native][hello-pear-react-native] — React Native mobile UIs
+- [hello-pear-react-native][hello-pear-react-native] — React Native mobile apps
 
 ## Table of Contents
 

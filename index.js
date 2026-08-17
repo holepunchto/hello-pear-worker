@@ -39,6 +39,7 @@ console.log('Application storage:', pear.storage)
 
 pear.updater.on('updating', () => pipe.write('updating'))
 pear.updater.on('updated', () => pipe.write('updated'))
+pear.on('update-incompatible', () => pipe.write('minver-required')) // for mobile native updates
 
 goodbye(async () => {
   await swarm.destroy()

@@ -35,6 +35,12 @@ if (updaterConfig.updates !== false) {
   })
 }
 
+// An append on the app's drive doesn't check for an update straight away: the
+// updater defers it by a random delay of up to an hour (see PearRuntimeUpdater)
+// so that a released fleet doesn't hit the seeder all at once. Forward the
+// delay so the app can say it is waiting rather than look inert — without it,
+// a staged update is indistinguishable from a broken updater for up to an hour.
+pear.updater.on('update-scheduled', (delay) => pipe.write('update-scheduled ' + delay))
 pear.updater.on('updating', () => pipe.write('updating'))
 pear.updater.on('updated', () => pipe.write('updated'))
 pear.on('minver-required', () => pipe.write('minver-required')) // for mobile store update notification

@@ -26,7 +26,8 @@ const store = new Corestore(path.join(updaterConfig.dir, 'pear-runtime', 'corest
 const swarm = new Hyperswarm()
 const pear = new PearRuntime({ ...updaterConfig, swarm, store })
 
-// pear.updater.on('error', console.error)
+pear.updater.on('error', (err) => pipe.write('updater-error ' + err.message))
+
 if (updaterConfig.updates !== false) {
   swarm.on('connection', (connection) => store.replicate(connection))
   swarm.join(pear.updater.drive.core.discoveryKey, {
@@ -53,11 +54,18 @@ goodbye(async () => {
 
 pipe.on('data', async (data) => {
   const message = data.toString()
-  if (message === 'pear:applyUpdate') {
+  if (message !== 'pear:applyUpdate') {
+    pipe.write('unknown-message ' + message)
+    return
+  }
+
+  try {
     await pear.ready()
     await pear.updater.applyUpdate()
     pipe.write('pear:updateApplied')
-  } // else console.log(message)
+  } catch (err) {
+    pipe.write('pear:updateFailed ' + err.message)
+  }
 })
 
 pipe.write('Hello from worker')

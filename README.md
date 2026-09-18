@@ -70,15 +70,20 @@ On desktop, `Bare.argv` starts with the executable path (`argv[0]`) and the work
 Messages the worker **writes** to its parent:
 
 - `Hello from worker` — sent on startup
+- `update-scheduled <ms>` — the drive changed and a check is queued. `<ms>` is an upper bound, not the wait: checks inside the updater's 60s boot grace period run immediately, but the value is always the full random draw
 - `updating` — an update is downloading
 - `updated` — an update has been fully downloaded
+- `minver-required` — a minimum version is required (mobile store update notification)
 - `pear:updateApplied` — reply after an update has been applied
+- `pear:updateFailed <message>` — reply after applying failed; the parent should surface this rather than assume the apply is still running
+- `updater-error <message>` — the updater failed in the background (a check that couldn't complete, no build for this host)
+- `unknown-message <message>` — an incoming message this worker doesn't handle, echoed back
 
 Messages the worker **handles** from its parent:
 
 - `pear:applyUpdate` — apply the downloaded update (swaps in the new build for the next launch)
 
-Any other incoming message is logged.
+Nothing is written to stdout or stderr: the parent owns the terminal, and a log line from here lands on whatever it has drawn there. Everything goes over the pipe instead.
 
 ### Updates
 

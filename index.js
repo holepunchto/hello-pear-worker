@@ -53,11 +53,15 @@ goodbye(async () => {
 
 pipe.on('data', async (data) => {
   const message = data.toString()
-  if (message === 'pear:applyUpdate') {
+  if (message !== 'pear:applyUpdate') return // else console.log(message)
+
+  try {
     await pear.ready()
     await pear.updater.applyUpdate()
     pipe.write('pear:updateApplied')
-  } // else console.log(message)
+  } catch (err) {
+    pipe.write('pear:updateFailed ' + err.message)
+  }
 })
 
 pipe.write('Hello from worker')

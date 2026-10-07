@@ -109,12 +109,13 @@ The module can be linked locally or published for the application boilerplates t
 
 ### Embedded Application Worker
 
-Installing `hello-pear-worker` automatically copies [`index.js`](./index.js) into the application's `workers/main.js` when that file is missing or contains exactly this placeholder, including its trailing newline:
+Installing `hello-pear-worker` automatically copies [`index.js`](./index.js) into the application's `workers/main.js` when that file is missing or contains this comment:
 
 ```js
-// the boilerplate worker is available at https://github.com/holepunchto/hello-pear-worker
-require('hello-pear-worker')
+// AUTO-GENERATED: REMOVE THIS COMMENT BEFORE EDITING
 ```
+
+Generated workers start with this comment. Remove it before editing to preserve your changes on future installs; keeping it allows the entire worker to be replaced.
 
 The postinstall script first installs this module's runtime dependencies into the application without saving them to its `package.json` or lockfile. It preserves custom workers and skips installation in this module's own directory or globally. npm lifecycle scripts must be enabled for this setup to run.
 

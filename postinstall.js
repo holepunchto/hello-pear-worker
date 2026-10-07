@@ -3,9 +3,7 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { name, version, dependencies } = require('./package.json')
 
-const boilerplate = `// the boilerplate worker is available at https://github.com/holepunchto/hello-pear-worker
-require('hello-pear-worker')
-`
+const header = '// AUTO-GENERATED: REMOVE THIS COMMENT BEFORE EDITING'
 
 function main({ save = false } = {}) {
   const root = process.env.npm_config_local_prefix || process.env.INIT_CWD
@@ -22,13 +20,15 @@ function main({ save = false } = {}) {
   const worker = path.join(root, 'workers', 'main.js')
   let copy = true
   try {
-    copy = fs.readFileSync(worker, 'utf8').replace(/\r\n/g, '\n') === boilerplate
+    copy = fs.readFileSync(worker, 'utf8').split(/\r?\n/).includes(header)
   } catch (err) {
     if (err.code !== 'ENOENT') throw err
   }
   if (!copy && !save) return
 
-  const source = copy ? fs.readFileSync(path.join(__dirname, 'index.js')) : null
+  const source = copy
+    ? `${header}\n\n${fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8')}`
+    : null
   const packages = Object.entries(dependencies).map(([name, range]) => `${name}@${range}`)
   if (!save) {
     // Keep this package until the parent install saves it to the project.

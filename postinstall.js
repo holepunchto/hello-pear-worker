@@ -1,7 +1,7 @@
 const fs = require('node:fs')
 const path = require('node:path')
 const { execFileSync } = require('node:child_process')
-const { name, version, dependencies } = require('./package.json')
+const { dependencies } = require('./package.json')
 
 const header = '// AUTO-GENERATED: REMOVE THIS COMMENT BEFORE EDITING'
 
@@ -29,30 +29,18 @@ function main({ save = false } = {}) {
   const source = copy
     ? `${header}\n\n${fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8')}`
     : null
-  const packages = Object.entries(dependencies).map(([name, range]) => `${name}@${range}`)
-  if (!save) {
-    // Keep this package until the parent install saves it to the project.
-    const resolved = process.env.npm_package_resolved
-    const spec = resolved === 'null' ? `file:${__dirname}` : resolved || version
-    packages.unshift(`${name}@${spec}`)
+  if (save) {
+    const packages = Object.entries(dependencies).map(([name, range]) => `${name}@${range}`)
+    execFileSync(
+      process.execPath,
+      [process.env.npm_execpath, 'install', '--prefix', root, '--save-prod', ...packages],
+      {
+        cwd: root,
+        stdio: 'inherit',
+        env: { ...process.env, HELLO_PEAR_WORKER_INSTALLING: '1' }
+      }
+    )
   }
-
-  execFileSync(
-    process.execPath,
-    [
-      process.env.npm_execpath,
-      'install',
-      '--prefix',
-      root,
-      ...(save ? ['--save-prod'] : ['--no-save', '--package-lock=false']),
-      ...packages
-    ],
-    {
-      cwd: root,
-      stdio: 'inherit',
-      env: { ...process.env, HELLO_PEAR_WORKER_INSTALLING: '1' }
-    }
-  )
 
   if (!copy) return
   fs.mkdirSync(path.dirname(worker), { recursive: true })

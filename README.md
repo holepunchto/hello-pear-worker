@@ -117,7 +117,7 @@ Installing `hello-pear-worker` automatically copies [`index.js`](./index.js) int
 
 Generated workers start with this comment. Remove it before editing to preserve your changes on future installs; keeping it allows the entire worker to be replaced.
 
-The postinstall script first installs this module's runtime dependencies into the application without saving them to its `package.json` or lockfile. It preserves custom workers and skips installation in this module's own directory or globally. npm lifecycle scripts must be enabled for this setup to run.
+The module's postinstall only copies the worker. It preserves custom workers and skips installation in this module's own directory or globally. npm lifecycle scripts must be enabled for this setup to run.
 
 To save those packages as application dependencies, run this command from the application's directory after installation finishes:
 
@@ -126,6 +126,16 @@ npm exec -- hello-pear-worker-setup
 ```
 
 This updates the application's `dependencies` and lockfile, even if its worker has already been copied or customized. The separate command is necessary because npm can overwrite dependency changes made during a dependency's postinstall.
+
+To run setup automatically after a plain `npm install`, add it to the application's `package.json`:
+
+```json
+"scripts": {
+  "postinstall": "hello-pear-worker-setup"
+}
+```
+
+Dependency installation runs after the application's initial install finishes, avoiding competing npm operations during worker upgrades or downgrades. An explicit package install such as `npm install hello-pear-worker` skips the application's postinstall; run a plain `npm install` or the setup command afterward to save the worker dependencies.
 
 If the backend is specific to one application boilerplate, develop it directly in `workers/main.js`. The saved dependencies remain available on subsequent installs.
 

@@ -109,7 +109,24 @@ The module can be linked locally or published for the application boilerplates t
 
 ### Embedded Application Worker
 
-If the backend is specific to one application boilerplate and will not be shared across different platform frontends or used from a headless Bare host, copy [`index.js`](./index.js) into that boilerplate's `workers/main.js` and develop it there. The backend then ships as part of the application boilerplate and does not need a separate module.
+Installing `hello-pear-worker` automatically copies [`index.js`](./index.js) into the application's `workers/main.js` when that file is missing or contains exactly this placeholder, including its trailing newline:
+
+```js
+// the boilerplate worker is available at https://github.com/holepunchto/hello-pear-worker
+require('hello-pear-worker')
+```
+
+The postinstall script first installs this module's runtime dependencies into the application without saving them to its `package.json` or lockfile. It preserves custom workers and skips installation in this module's own directory or globally. npm lifecycle scripts must be enabled for this setup to run.
+
+To save those packages as application dependencies, run this command from the application's directory after installation finishes:
+
+```sh
+npm exec -- hello-pear-worker-setup
+```
+
+This updates the application's `dependencies` and lockfile, even if its worker has already been copied or customized. The separate command is necessary because npm can overwrite dependency changes made during a dependency's postinstall.
+
+If the backend is specific to one application boilerplate, develop it directly in `workers/main.js`. The saved dependencies remain available on subsequent installs.
 
 ### Starting the Worker
 

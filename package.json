@@ -3,6 +3,9 @@
   "version": "1.2.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "hello-pear-worker-setup": "setup.js"
+  },
   "imports": {
     "pear-runtime": {
       "ios": "pear-mobile",
@@ -12,6 +15,7 @@
     }
   },
   "scripts": {
+    "postinstall": "node postinstall.js",
     "format": "prettier . --write",
     "test": "npm run lint",
     "lint": "prettier . --check && lunte"

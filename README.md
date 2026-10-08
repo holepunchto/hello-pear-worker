@@ -109,7 +109,32 @@ The module can be linked locally or published for the application boilerplates t
 
 ### Embedded Application Worker
 
-If the backend is specific to one application boilerplate and will not be shared across different platform frontends or used from a headless Bare host, copy [`index.js`](./index.js) into that boilerplate's `workers/main.js` and develop it there. The backend then ships as part of the application boilerplate and does not need a separate module.
+Boilerplate maintainers install `hello-pear-worker` as a development dependency and expose an explicit command in the application's `package.json`:
+
+```json
+"scripts": {
+  "inline-worker": "node -e \"require('hello-pear-worker/inline-worker')()\""
+},
+"devDependencies": {
+  "hello-pear-worker": "^1.2.0"
+}
+```
+
+After updating the development dependency, run:
+
+```sh
+npm run inline-worker
+```
+
+The command copies [`index.js`](./index.js) into `workers/main.js` and installs this module's runtime dependencies into the application's `dependencies`, updating its lockfile. It also adds the worker's platform runtime mappings to the application's `imports`, preserving existing mappings. The worker begins with a provenance comment containing the repository URL and installed version:
+
+```js
+// https://github.com/holepunchto/hello-pear-worker v1.2.0
+```
+
+Missing workers and workers with this provenance header are replaced. Remove the header before customizing a worker to preserve your changes when the maintainer command runs.
+
+Commit `workers/main.js`, `package.json`, and the lockfile when updating a boilerplate. Users clone the inlined worker and develop it directly in their application. Worker updates run only through the explicit maintainer command; normal dependency installs leave the worker untouched, including when install scripts are disabled.
 
 ### Starting the Worker
 

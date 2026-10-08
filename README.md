@@ -109,35 +109,32 @@ The module can be linked locally or published for the application boilerplates t
 
 ### Embedded Application Worker
 
-Installing `hello-pear-worker` automatically copies [`index.js`](./index.js) into the application's `workers/main.js` when that file is missing or contains this comment:
-
-```js
-// AUTO-GENERATED: REMOVE THIS COMMENT BEFORE EDITING
-```
-
-Generated workers start with this comment. Remove it before editing to preserve your changes on future installs; keeping it allows the entire worker to be replaced.
-
-The module's postinstall only copies the worker. It preserves custom workers and skips installation in this module's own directory or globally. npm lifecycle scripts must be enabled for this setup to run.
-
-To save those packages as application dependencies, run this command from the application's directory after installation finishes:
-
-```sh
-npm exec -- hello-pear-worker-setup
-```
-
-This updates the application's `dependencies` and lockfile, even if its worker has already been copied or customized. The separate command is necessary because npm can overwrite dependency changes made during a dependency's postinstall.
-
-To run setup automatically after a plain `npm install`, add it to the application's `package.json`:
+Boilerplate maintainers install `hello-pear-worker` as a development dependency and expose an explicit command in the application's `package.json`:
 
 ```json
 "scripts": {
-  "postinstall": "hello-pear-worker-setup"
+  "inline-worker": "node -e \"require('hello-pear-worker/inline-worker')()\""
+},
+"devDependencies": {
+  "hello-pear-worker": "^1.2.0"
 }
 ```
 
-Dependency installation runs after the application's initial install finishes, avoiding competing npm operations during worker upgrades or downgrades. An explicit package install such as `npm install hello-pear-worker` skips the application's postinstall; run a plain `npm install` or the setup command afterward to save the worker dependencies.
+After updating the development dependency, run:
 
-If the backend is specific to one application boilerplate, develop it directly in `workers/main.js`. The saved dependencies remain available on subsequent installs.
+```sh
+npm run inline-worker
+```
+
+The command copies [`index.js`](./index.js) into `workers/main.js` and installs this module's runtime dependencies into the application's `dependencies`, updating its lockfile. It also adds the worker's platform runtime mappings to the application's `imports`, preserving existing mappings. The worker begins with a provenance comment containing the repository URL and installed version:
+
+```js
+// https://github.com/holepunchto/hello-pear-worker v1.2.0
+```
+
+Missing workers and workers with this provenance header are replaced. Remove the header before customizing a worker to preserve your changes when the maintainer command runs.
+
+Commit `workers/main.js`, `package.json`, and the lockfile when updating a boilerplate. Users clone the inlined worker and develop it directly in their application. Worker updates run only through the explicit maintainer command; normal dependency installs leave the worker untouched, including when install scripts are disabled.
 
 ### Starting the Worker
 

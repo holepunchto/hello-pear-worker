@@ -16,6 +16,7 @@ Companion application boilerplates:
 
 ## Table of Contents
 
+- [Related Repositories](#related-repositories)
 - [How It Works](#how-it-works)
   - [Runtime Selection](#runtime-selection)
   - [Arguments](#arguments)
@@ -28,6 +29,10 @@ Companion application boilerplates:
   - [Starting the Worker](#starting-the-worker)
 - [Scripts](#scripts)
 - [License](#license)
+
+## Related Repositories
+
+Pear has official templates for desktop, terminal, short-lived CLI, and mobile apps. See [Start from a template][from-a-template] to compare them and pick the one that matches what you're shipping.
 
 ## How It Works
 
@@ -153,6 +158,7 @@ Apache-2.0
 [hello-pear-electron]: https://github.com/holepunchto/hello-pear-electron
 [hello-pear-bare]: https://github.com/holepunchto/hello-pear-bare
 [hello-pear-react-native]: https://github.com/holepunchto/hello-pear-react-native
+[from-a-template]: https://docs.pears.com/p2p/getting-started/from-a-template/
 [hello-pear-electron-deployments]: https://github.com/holepunchto/hello-pear-electron#deployments
 [pear-runtime]: https://github.com/holepunchto/pear-runtime
 [pear-mobile]: https://github.com/holepunchto/pear-mobile
